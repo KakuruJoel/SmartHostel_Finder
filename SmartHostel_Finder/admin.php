@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'auth_check.php';
 
 // 1. Access Control: Strictly Admins only
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
@@ -25,7 +26,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
     $id = intval($_GET['id']);
     $action = ($_GET['action'] == 'approve') ? 'approved' : 'rejected';
 
-    $stmt = $conn->prepare("UPDATE hostels SET booking_status = ? WHERE hostel_id = ?");
+    $stmt = $conn->prepare("UPDATE hostels SET status = ? WHERE hostel_id = ?");
     $stmt->bind_param("si", $action, $id);
     $stmt->execute();
     header("Location: admin.php?msg=booking_status_updated");

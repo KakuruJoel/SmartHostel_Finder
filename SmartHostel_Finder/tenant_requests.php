@@ -1,5 +1,6 @@
 <?php
 include('config.php');
+include('auth_check.php');
 
 // Security: Landlord Only
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'landlord') {

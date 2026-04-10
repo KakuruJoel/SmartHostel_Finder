@@ -1,5 +1,7 @@
 <?php
 require_once 'config.php';
+require_once 'auth_check.php';
+
 
 // 1. Protection: Must be logged in
 if (!isset($_SESSION['user_id'])) {

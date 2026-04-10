@@ -1,4 +1,4 @@
-<aside id="sidebar" class="bg-white border-end position-fixed h-100 shadow-sm" style="width: 260px; z-index: 1000;">
+<aside id="sidebar" class="sidebar bg-white border-end position-fixed h-100 shadow-sm" style="width: 260px; z-index: 1000;">
     <div class="p-4 text-center">
         <img src="project_logo.png" height="75" class="rounded-circle border border-4 border-white shadow-sm mb-3">
         <h6 class="fw-800 mb-0">SmartHostel Panel</h6>

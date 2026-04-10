@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'auth_check.php';
 
 // 1. Access Control: Only Landlords can add hostels
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'landlord') {

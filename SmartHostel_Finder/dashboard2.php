@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'auth_check.php';
 
 // 1. Protection: If not logged in, kick to login
 if (!isset($_SESSION['user_id'])) {

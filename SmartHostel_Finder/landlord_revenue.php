@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'db_config.php';
+require_once 'auth_check.php';
 
 // 1. Authentication Check
 if (!isset($_SESSION['landlord_id'])) {

@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'auth_check.php';
 
 // Fetch Search Query if it exists
 $search = isset($_GET['search']) ? clean($_GET['search']) : '';

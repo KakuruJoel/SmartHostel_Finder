@@ -19,7 +19,10 @@ if (ini_get("session.use_cookies")) {
 }
 
 // 3. Finally, destroy the session.
+session_start();
+session_unset();
 session_destroy();
+
 
 // 4. Redirect to homepage or login with a goodbye message
 header("Location: index.php?msg=logged_out");

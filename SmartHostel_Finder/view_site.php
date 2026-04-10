@@ -1,5 +1,6 @@
 <?php
 include('config.php');
+include('auth_check.php');
 
 // 1. Security Check: Only allow Admins
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {

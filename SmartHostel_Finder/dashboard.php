@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'auth_check.php';
 
 // 1. Protection: If not logged in, kick to login
 if (!isset($_SESSION['user_id'])) {
@@ -141,7 +142,7 @@ if ($role == 'landlord' && isset($_POST['toggle_availability'])) {
 
                 <?php if ($role == 'admin'): ?>
                     <a href="manage_users.php" class="sidebar-link"><i class="fas fa-users"></i> <span>Manage Users</span></a>
-                    <a href="all_hostels.php" class="sidebar-link"><i class="fas fa-building"></i> <span>All Hostels</span></a>
+                    <a href="manage_hostels.php" class="sidebar-link"><i class="fas fa-building"></i> <span>All Hostels</span></a>
                     <a href="reports.php" class="sidebar-link"><i class="fas fa-chart-line"></i> <span>Reports</span></a>
 
                 <?php elseif ($role == 'landlord'): ?>

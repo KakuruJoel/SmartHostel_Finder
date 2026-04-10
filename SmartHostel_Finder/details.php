@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'auth_check.php';
 
 // 1. Fetch Hostel ID from URL
 if (!isset($_GET['id'])) {
