@@ -40,7 +40,7 @@ if (isset($_SESSION['last_activity'])) {
     if ($inactive > $timeout) {
         session_unset();
         session_destroy();
-        header("Location: auth.php?reason=timeout");
+        header("Location: login.php?reason=timeout");
         exit();
     }
 }

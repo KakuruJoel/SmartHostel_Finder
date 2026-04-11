@@ -30,6 +30,24 @@ if (isset($_POST['save_hostel'])) {
                 $conn->query("INSERT INTO hostel_facilities (hostel_id, facility_id) VALUES ($hostel_id, $f_id)");
             }
         }
+        // 2. Handle Image Upload
+        if (!empty($_FILES['hostel_image']['name'])) {
+            $target_dir = "uploads/";
+            // Create the folder if it doesn't exist
+            if (!is_dir($target_dir)) {
+                mkdir($target_dir, 0777, true);
+            }
+
+            // Define the target path (e.g., uploads/1712750000_photo.jpg)
+            $file_name = time() . "_" . basename($_FILES["hostel_image"]["name"]);
+            $target_file = $target_dir . $file_name;
+
+            if (move_uploaded_file($_FILES["hostel_image"]["tmp_name"], $target_file)) {
+                // Now $target_file is defined and ready to be saved in the database
+                $conn->query("INSERT INTO images (hostel_id, room_id, image_path, is_thumbnail) 
+                      VALUES ($hostel_id, NULL, '$target_file', 1)");
+            }
+        }
         if (move_uploaded_file($_FILES["hostel_image"]["tmp_name"], $target_file)) {
             // Insert into images table with hostel_id and mark as thumbnail
             $conn->query("INSERT INTO images (hostel_id, room_id, image_path, is_thumbnail) 

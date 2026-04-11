@@ -55,7 +55,7 @@ include('auth_check.php');
         <div class="container">
             <div class="row">
                 <div class="col-lg-7">
-                    <h1 class="display-3 fw-bold mb-4">Find Your Home Away From Home.</h1>
+                    <h1 class="display-7 fw-bold mb-4">Find Your Home Away From Home.</h1>
                     <p class="lead mb-5">The smartest way to search, book, and manage your student accommodation in Uganda.</p>
 
                     <div class="search-box text-dark">
@@ -150,7 +150,7 @@ include('auth_check.php');
                     <p class="mb-0 opacity-75">Start managing your bookings and revenue more efficiently today.</p>
                 </div>
                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                    <a href="auth.php" class="btn btn-primary btn-lg px-5 rounded-pill">List Your Hostel</a>
+                    <a href="register.php" class="btn btn-primary btn-lg px-5 rounded-pill">List Your Hostel</a>
                 </div>
             </div>
         </div>

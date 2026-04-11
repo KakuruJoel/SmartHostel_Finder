@@ -133,7 +133,7 @@ $result = $conn->query($query);
                                             <i class="fas fa-image fa-3x"></i>
                                         </div>
                                         <div class="price-tag shadow-sm">
-                                            <?= formatMoney($h['price']) ?>
+                                            <?= formatMoney($h['price_range']) ?>
                                         </div>
                                     </div>
 

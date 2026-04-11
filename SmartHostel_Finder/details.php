@@ -7,7 +7,11 @@ if (!isset($_GET['id'])) {
     header("Location: index.php");
     exit();
 }
+// 1. Get ID from URL
+$hostel_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
+// Assign $id to match what your button is looking for
+$id = $hostel_id;
 $hid = intval($_GET['id']);
 $uid = $_SESSION['user_id'] ?? null;
 
@@ -169,7 +173,7 @@ $avg_score = round($stats['avg'], 1) ?: "No ratings";
             <div class="col-lg-4">
                 <div class="card sidebar-card shadow p-4">
                     <h6 class="text-uppercase small fw-bold text-muted mb-2">Price Per Semester</h6>
-                    <h2 class="fw-800 text-primary mb-4"><?= formatMoney($h['price']) ?></h2>
+                    <h2 class="fw-800 text-primary mb-4"><?= formatMoney($h['price_range']) ?></h2>
 
                     <div class="mb-4">
                         <small class="text-muted d-block mb-1">Managed By</small>
@@ -185,7 +189,7 @@ $avg_score = round($stats['avg'], 1) ?: "No ratings";
                         <div class="alert alert-success border-0 small py-2 mb-4">
                             <i class="fas fa-check-circle me-2"></i> Currently Accepting Bookings
                         </div>
-                        <a href="pay_deposit.php?id=<?= $hid ?>" class="btn btn-danger btn-lg w-100 rounded-pill fw-bold py-3 shadow">
+                        <a href="view_rooms.php?hostel_id=<?= $id ?>" class="btn btn-danger btn-lg w-100 rounded-pill fw-bold py-3 shadow">
                             Book Room Now
                         </a>
                     <?php else: ?>

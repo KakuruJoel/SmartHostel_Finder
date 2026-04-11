@@ -28,15 +28,18 @@ if (isset($_GET['delete_id'])) {
 // 3. Handle ADD Room
 if (isset($_POST['add_room'])) {
     $hid = intval($_POST['hostel_id']);
-    $r_no = mysqli_real_escape_string($conn, $_POST['room_number']); // Fixed key name
+    $r_no = mysqli_real_escape_string($conn, $_POST['room_number']);
+
+    // Ensure this matches the 'name' attribute in your HTML select tag
     $type = mysqli_real_escape_string($conn, $_POST['room_type']);
+
     $price = mysqli_real_escape_string($conn, $_POST['price']);
     $cap = intval($_POST['capacity']);
     $faci = isset($_POST['room_faci']) ? implode(', ', $_POST['room_faci']) : '';
 
-    $sql = "INSERT INTO rooms (hostel_id, room_number, room_type, price, capacity, status, room_facilities) 
+    // Corrected SQL: Using 'room_type' and 'availability_status' from your DB structure
+    $sql = "INSERT INTO rooms (hostel_id, room_number, room_type, price, capacity, availability_status, room_facilities) 
             VALUES ($hid, '$r_no', '$type', '$price', $cap, 'available', '$faci')";
-
     if ($conn->query($sql)) {
         $room_id = $conn->insert_id; // Get the ID for the new room
         $message = "<div class='alert alert-primary'>New room added to your inventory!</div>";
@@ -54,7 +57,7 @@ if (isset($_POST['add_room'])) {
             if (move_uploaded_file($_FILES["room_image"]["tmp_name"], $target_file)) {
                 // Insert into images table using the new room_id
                 $conn->query("INSERT INTO images (room_id, hostel_id, image_path, is_thumbnail) 
-                              VALUES ($room_id, NULL, '$target_file', 0)");
+                              VALUES ($room_id, $hid, '$target_file', 0)");
             }
         }
     } else {
@@ -144,7 +147,7 @@ $rooms_res = $conn->query($rooms_sql);
                                         <td class="fw-bold text-success"><?= number_format($room['price']) ?></td>
                                         <td><?= $room['capacity'] ?> Stud.</td>
                                         <td>
-                                            <?php if ($room['status'] == 'available'): ?>
+                                            <?php if ($room['availability_status'] == 'available'): ?>
                                                 <span class="status-pill bg-success-subtle text-success">Available</span>
                                             <?php else: ?>
                                                 <span class="status-pill bg-danger-subtle text-danger">Occupied</span>
@@ -203,11 +206,11 @@ $rooms_res = $conn->query($rooms_sql);
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="small fw-bold mb-2">Room Type</label>
-                            <select name="room_type" class="form-select">
-                                <option>Single</option>
-                                <option>Double (Standard)</option>
-                                <option>Triple</option>
-                                <option>Self-Contained</option>
+                            <select name="room_type" class="form-select" required>
+                                <option value="Single">Single</option>
+                                <option value="Double">Double (Standard)</option>
+                                <option value="Triple">Triple</option>
+                                <option value="Self-contained">Self-contained</option>
                             </select>
                         </div>
                     </div>
