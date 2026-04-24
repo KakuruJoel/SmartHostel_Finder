@@ -237,7 +237,7 @@ if ($role == 'landlord' && isset($_POST['toggle_availability'])) {
                                 <div class="card card-custom p-3 mb-3 d-flex flex-row align-items-center">
                                     <div class="flex-grow-1 ps-3">
                                         <h6 class="fw-bold mb-1"><?= $b['name'] ?></h6>
-                                        <small class="text-muted"><i class="fas fa-receipt me-1"></i> ID: <?= $b['transaction_id'] ?></small>
+                                        <small class="text-muted"><i class="fab fa-receipt me-1"></i> ID: <?= $b['booking_id'] ?></small>
                                     </div>
                                     <div class="text-end">
                                         <span class="badge bg-<?= ($b['booking_status'] == 'confirmed') ? 'success' : 'warning' ?> booking_status-pill d-block mb-1">

@@ -33,26 +33,32 @@ if (!$data || $data['availability_status'] !== 'available') {
     exit();
 }
 
-// 4. Handle Booking Submission (When button is clicked)
+// 4. Handle Booking Submission
 if (isset($_POST['confirm_booking'])) {
-    // Collect data from the hidden inputs and date field
     $start_date = mysqli_real_escape_string($conn, $_POST['start_date']);
-    $amount = mysqli_real_escape_string($conn, $_POST['price']);
+    $total_price = floatval($_POST['total_price']);
+    $deposit = floatval($_POST['deposit_amount']); // Capture the user's input
     $hid = mysqli_real_escape_string($conn, $_POST['hostel_id']);
     $rid = mysqli_real_escape_string($conn, $_POST['room_id']);
     $sid = $_SESSION['user_id'];
 
-    // Insert into database
-    $book_sql = "INSERT INTO bookings (room_id, tenant_id, booking_status, booking_date, amount, hostel_id) 
-                 VALUES ('$rid', '$sid', 'pending', NOW(), '$amount', '$hid')";
-
-    if ($conn->query($book_sql)) {
-        $booking_id = $conn->insert_id;
-        // Success! Redirect to the payment page with the NEW booking_id
-        header("Location: process_payment.php?booking_id=" . $booking_id);
-        exit();
+    // Validation: Ensure deposit is at least a minimum amount and not more than total
+    if ($deposit <= 0) {
+        $message = "<div class='alert alert-danger'>Please enter a valid deposit amount.</div>";
+    } elseif ($deposit > $total_price) {
+        $message = "<div class='alert alert-danger'>Deposit cannot be greater than the total price (UGX " . number_format($total_price) . ").</div>";
     } else {
-        $message = "<div class='alert alert-danger'>Booking failed: " . $conn->error . "</div>";
+        // Insert into database - Note we use $deposit for the amount field
+        $book_sql = "INSERT INTO bookings (room_id, tenant_id, booking_status, booking_date, amount, hostel_id) 
+                     VALUES ('$rid', '$sid', 'pending', NOW(), '$deposit', '$hid')";
+
+        if ($conn->query($book_sql)) {
+            $booking_id = $conn->insert_id;
+            header("Location: process_payment.php?booking_id=" . $booking_id);
+            exit();
+        } else {
+            $message = "<div class='alert alert-danger'>Booking failed: " . $conn->error . "</div>";
+        }
     }
 }
 ?>
@@ -113,20 +119,22 @@ if (isset($_POST['confirm_booking'])) {
                     <form action="" method="POST">
                         <input type="hidden" name="room_id" value="<?= $data['room_id'] ?>">
                         <input type="hidden" name="hostel_id" value="<?= $data['hostel_id'] ?>">
-                        <input type="hidden" name="price" value="<?= $data['price'] ?>">
+                        <input type="hidden" name="total_price" value="<?= $data['price'] ?>">
 
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="form-label fw-bold small">Expected Move-in Date</label>
                             <input type="date" name="start_date" class="form-control" required min="<?= date('Y-m-d') ?>">
-                            <div class="form-text">Select the date you intend to occupy the room.</div>
                         </div>
 
-                        <div class="bg-light p-3 rounded-3 mb-4">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-bold">Amount Payable:</span>
-                                <span class="price-tag text-success">UGX <?= number_format($data['price']) ?></span>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-primary">Amount to Pay Now (Deposit)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">UGX</span>
+                                <input type="number" name="deposit_amount" class="form-control form-control-lg fw-bold"
+                                    placeholder="Enter amount" min="100" max="<?= $data['price'] ?>"
+                                    value="<?= $data['price'] ?>" required>
                             </div>
-                            <small class="text-muted mt-2 d-block">This covers your accommodation for one full semester.</small>
+                            <div class="form-text">Total semester price: <strong>UGX <?= number_format($data['price']) ?></strong>. You can pay a portion now to secure the room.</div>
                         </div>
 
                         <div class="form-check mb-4">

@@ -1,46 +1,34 @@
 <?php
-require_once 'config.php';
-require_once 'auth_check.php';
-
-// Redirect if already logged in
-if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
-    exit();
-}
-
+include('config.php');
+include('auth_check.php');
 $message = "";
-$error = "";
 
-// --- REGISTRATION LOGIC ---
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
-    $fullname = clean($_POST['fullname']);
-    $email    = clean($_POST['email']);
-    $phone    = clean($_POST['phone']);
-    $role     = clean($_POST['role']); // 'tenant' or 'landlord'
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $full_name = mysqli_real_escape_string($conn, $_POST['full_name']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+    $role = $_POST['role'];
     $password = $_POST['password'];
-    $confirm  = $_POST['confirm_password'];
+    $confirm_password = $_POST['confirm_password'];
 
-    // 1. Basic Validation
-    if ($password !== $confirm) {
-        $error = "Passwords do not match!";
+    // Basic Validation
+    if ($password !== $confirm_password) {
+        $message = "<div class='alert alert-danger'>Passwords do not match!</div>";
     } else {
-        // 2. Check if email exists
-        $check = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
-        $check->bind_param("s", $email);
-        $check->execute();
-        if ($check->get_result()->num_rows > 0) {
-            $error = "An account with this email already exists.";
+        // Check if email exists
+        $check = $conn->query("SELECT email FROM users WHERE email='$email'");
+        if ($check->num_rows > 0) {
+            $message = "<div class='alert alert-danger'>Email already registered!</div>";
         } else {
-            // 3. Hash Password & Insert
-            $hashed_pass = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $conn->prepare("INSERT INTO users (full_name, email, phone, password_hash, role) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssss", $fullname, $email, $phone, $hashed_pass, $role);
+            $hashed_pass = password_hash($password, PASSWORD_BCRYPT);
+            $sql = "INSERT INTO users (full_name, email, password_hash, role, phone) 
+                    VALUES ('$full_name', '$email', '$hashed_pass', '$role', '$phone')";
 
-            if ($stmt->execute()) {
+            if ($conn->query($sql)) {
                 header("Location: login.php?msg=registered");
                 exit();
             } else {
-                $error = "Registration failed. Please try again later.";
+                $message = "<div class='alert alert-danger'>Error: " . $conn->error . "</div>";
             }
         }
     }
@@ -51,58 +39,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account | SmartHostel FINDER</title>
+    <title>Join SmartHostel | Register</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #f0f2f5;
+            background-color: #f4f7f6;
             min-height: 100vh;
             display: flex;
             align-items: center;
-            padding: 40px 0;
         }
 
-        .register-card {
-            border: none;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
-            background: white;
+        .reg-container {
+            background: #fff;
+            border-radius: 20px;
             overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .reg-sidebar {
+            background: linear-gradient(135deg, #04d7f3 0%, #0abae6 100%);
+            color: #000;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            font-weight: 600;
         }
 
         .form-control,
         .form-select {
-            border-radius: 12px;
-            padding: 12px 15px;
-            background-color: #f8f9fa;
-            border: 1px solid #eee;
-            font-size: 0.9rem;
-        }
-
-        .btn-register {
-            background: #dc3545;
-            border: none;
-            border-radius: 12px;
             padding: 12px;
-            font-weight: 700;
-            transition: 0.3s;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
         }
 
-        .btn-register:hover {
-            background: #bb2d3b;
-            transform: translateY(-2px);
-        }
-
-        .logo-img {
-            height: 70px;
-            width: 70px;
-            object-fit: cover;
-            border: 4px solid white;
+        .btn-primary {
+            padding: 12px;
+            font-weight: 600;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -111,80 +87,73 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
 
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-7 col-lg-5">
+            <div class="col-lg-10 reg-container">
+                <div class="row">
+                    <div class="col-md-5 reg-sidebar d-none d-md-flex text-center">
+                        <img src="project_logo.png" alt="SmartHostel FINDER Logo" class="sidebar-logo">
+                        <h2 class="fw-bold">Create Account</h2>
+                        <p class="lead">Join thousands of students and landlords in Mbarara's smartest hostel network.</p>
+                        <ul class="list-unstyled text-start mx-auto mt-3">
+                            <li><i class="fas fa-check-circle me-2"></i> Quick Booking</li>
+                            <li><i class="fas fa-check-circle me-2"></i> Verified Listings</li>
+                            <li><i class="fas fa-check-circle me-2"></i> Direct Contact</li>
+                        </ul>
+                    </div>
 
-                <div class="text-center mb-4">
-                    <a href="index.php">
-                        <img src="project_logo.png" alt="SmartHostel Logo" class="logo-img rounded-circle shadow-sm">
-                    </a>
-                    <h4 class="fw-800 mt-3 mb-0">Join SmartHostel</h4>
-                    <p class="text-muted small">The premier hostel finder for Mbarara students.</p>
-                </div>
-
-                <div class="card register-card">
-                    <div class="p-4 p-md-5">
-                        <?php if ($error): ?>
-                            <div class="alert alert-danger border-0 small py-2 text-center mb-4 rounded-3">
-                                <i class="fas fa-exclamation-triangle me-1"></i> <?= $error ?>
-                            </div>
-                        <?php endif; ?>
+                    <div class="col-md-7 p-5">
+                        <h3 class="fw-bold mb-4">Sign Up</h3>
+                        <?= $message ?>
 
                         <form action="register.php" method="POST">
                             <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label small fw-bold text-uppercase">Full Name</label>
-                                    <input type="text" name="fullname" class="form-control shadow-none" placeholder="Enter your full name" required>
-                                </div>
-
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label small fw-bold text-uppercase">Email Address</label>
-                                    <input type="email" name="email" class="form-control shadow-none" placeholder="student@example.com" required>
-                                </div>
-
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label small fw-bold text-uppercase">Phone Number</label>
-                                    <input type="text" name="phone" class="form-control shadow-none" placeholder="07..." required>
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" name="full_name" class="form-control" placeholder="John Doe" required>
                                 </div>
-
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label small fw-bold text-uppercase">I am a...</label>
-                                    <select name="role" class="form-select shadow-none" required>
-                                        <option value="tenant">Student (Tenant)</option>
-                                        <option value="landlord">Landlord / Manager</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label small fw-bold text-uppercase">Password</label>
-                                    <input type="password" name="password" class="form-control shadow-none" placeholder="••••••••" required>
-                                </div>
-
-                                <div class="col-md-6 mb-4">
-                                    <label class="form-label small fw-bold text-uppercase">Confirm</label>
-                                    <input type="password" name="confirm_password" class="form-control shadow-none" placeholder="••••••••" required>
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="text" name="phone" class="form-control" placeholder="0700000000" required>
                                 </div>
                             </div>
 
-                            <button type="submit" name="register" class="btn btn-register btn-primary w-100 shadow-sm text-white">
-                                Create My Account
-                            </button>
+                            <div class="mb-3">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" name="email" class="form-control" placeholder="example@mail.com" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">I am a...</label>
+                                <select name="role" class="form-select" required>
+                                    <option value="tenant">Tenant (Looking for a room)</option>
+                                    <option value="landlord">Landlord (I own a property)</option>
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" name="password" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label">Confirm Password</label>
+                                    <input type="password" name="confirm_password" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 mb-3">Create Account</button>
+
+                            <div class="text-center">
+                                <p class="text-muted">Already have an account? <a href="login.php" class="text-decoration-none fw-bold">Login</a></p>
+                                <a href="index.php" class="text-muted small"><i class="fas fa-arrow-left"></i> Return to Homepage</a>
+                            </div>
                         </form>
                     </div>
-                    <div class="bg-light p-3 text-center border-top">
-                        <p class="mb-0 small text-muted">Already have an account? <a href="login.php" class="text-danger fw-bold text-decoration-none">Login Here</a></p>
-                    </div>
                 </div>
-
-                <div class="text-center mt-4">
-                    <a href="index.php" class="text-muted text-decoration-none small"><i class="fas fa-arrow-left me-1"></i> Back to Home</a>
-                </div>
-
             </div>
         </div>
     </div>
-    <!-- <?php include 'footer.php'; ?> -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

@@ -36,11 +36,11 @@ if (isset($_POST['pay_now'])) {
     $amount = $booking['amount'];
 
     // Update Booking Status
-    $update_booking = "UPDATE bookings SET status = 'paid' WHERE booking_id = $booking_id";
+    $update_booking = "UPDATE bookings SET booking_status = 'paid' WHERE booking_id = $booking_id";
 
     // Update Room Status to 'occupied'
     $room_id = $booking['room_id'];
-    $update_room = "UPDATE rooms SET status = 'occupied' WHERE room_id = $room_id";
+    $update_room = "UPDATE rooms SET availability_status = 'occupied' WHERE room_id = $room_id";
 
     // Insert into a hypothetical payments table (if you have one)
     $pay_sql = "INSERT INTO payments (booking_id, transaction_id, amount, method, status) 
